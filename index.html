@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+     <meta charset="UTF-8" />
+    <title>Mock Payment Gateway with Tailwind CSS</title>
+    <!-- Tailwind CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full p-8 bg-white rounded shadow-lg">
+      <h2 class="text-2xl font-bold mb-6 text-center">Mock Payment Gateway</h2>
+
+      <!-- Payment Form -->
+      <form id="payment-form">
+        <div class="mb-4">
+          <label
+            for="card-number"
+            class="block text-sm font-medium text-gray-700"
+            >Card Number:</label
+          >
+          <input
+            value="4222 2222 2222 2222"
+            type="text"
+            id="card-number"
+            name="card-number"
+            placeholder="Enter card number"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+        <div class="mb-4">
+          <label
+            for="expiry-date"
+            class="block text-sm font-medium text-gray-700"
+            >Expiry Date:</label
+          >
+          <input
+            value="12/30"
+            type="text"
+            id="expiry-date"
+            name="expiry-date"
+            placeholder="MM/YY"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+        <div class="mb-6">
+          <label for="cvv" class="block text-sm font-medium text-gray-700"
+            >CVV:</label
+          >
+          <input
+            value="123"
+            type="text"
+            id="cvv"
+            name="cvv"
+            placeholder="CVV"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+        <button
+          type="button"
+          onclick="processPayment()"
+          class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          Pay Now
+        </button>
+      </form>
+
+      <!-- Payment Response -->
+      <div id="payment-response" class="mt-8 hidden">
+        <h2 class="text-lg font-bold mb-2">Payment Status</h2>
+        <p id="payment-message" class="text-gray-800"></p>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      function delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function processPayment() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const callback_url = urlParams.get("callback");
+        const success_url = urlParams.get("success_url");
+        const fail_url = urlParams.get("fail_url");
+        const amount = urlParams.get("amount");
+        const trans_id = urlParams.get("trans_id");
+
+        if (!callback_url || !isValidURL(callback_url)) {
+          return showPaymentResult("Payment failed. Invalid Callback URL");
+        }
+
+        if (!success_url || !isValidURL(success_url)) {
+          return showPaymentResult("Payment failed. Invalid Success URL");
+        }
+
+        if (!fail_url || !isValidURL(fail_url)) {
+          return showPaymentResult("Payment failed. Invalid Fal URL");
+        }
+
+        try {
+          // Simulate processing delay
+          await delay(2000);
+
+          // Retrieve input values
+          const cardNumber = document.getElementById("card-number").value;
+          const expiryDate = document.getElementById("expiry-date").value;
+          const cvv = document.getElementById("cvv").value;
+
+          if (cardNumber && expiryDate && cvv) {
+            // Simulate successful payment
+            showPaymentResult(
+              "Payment successful! Please wait while you are redirected."
+            );
+
+            // Wait for 1 more second before redirecting
+            await delay(1000);
+
+            const postData = {
+              data: {
+                trans_id,
+                amount,
+              },
+            };
+
+            const options = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(postData),
+            };
+
+            fetch(callback_url, options)
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Network response was not ok");
+                }
+              })
+              .then((data) => {
+                // Handle successful response
+                console.log("POST request succeeded with JSON response:", data);
+
+                window.location.href = success_url + "?trans_id=" + trans_id;
+              })
+              .catch((error) => {
+                // Handle errors
+                console.error("Error making POST request:", error);
+                window.location.href = fail_url;
+              });
+          } else {
+            // Simulate failed payment
+            showPaymentResult("Payment failed. Please check your details.");
+          }
+        } catch (error) {
+          console.error("Error processing payment:", error);
+        }
+      }
+
+      function showPaymentResult(message) {
+        document.getElementById("payment-form").style.display = "none";
+        document.getElementById("payment-response").style.display = "block";
+        document.getElementById("payment-message").textContent = message;
+      }
+
+      function isValidURL(url) {
+        const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+        return urlPattern.test(url);
+      }
+    </script>
+  </body>
+</html>
