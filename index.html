@@ -92,6 +92,10 @@
       function delay(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
       }
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const amount = urlParams.get("amount");
+      document.getElementById("amount").value = amount;
 
       async function processPayment() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -112,8 +116,6 @@
         if (!fail_url || !isValidURL(fail_url)) {
           return showPaymentResult("Payment failed. Invalid Fal URL");
         }
-
-        document.getElementById("amount").value = amount;
         
         try {
           // Simulate processing delay
