@@ -57,6 +57,19 @@
             placeholder="CVV"
             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
+        </div>e
+        <div class="mb-6">
+          <label for="amount" class="block text-sm font-medium text-gray-700"
+            >Amount:</label
+          >
+          <input
+            value="123"
+            type="text"
+            id="amount"
+            name="amount"
+            placeholder="amount"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
         </div>
         <button
           type="button"
@@ -100,6 +113,8 @@
           return showPaymentResult("Payment failed. Invalid Fal URL");
         }
 
+        document.getElementById("amount").val(amount);
+        
         try {
           // Simulate processing delay
           await delay(2000);
